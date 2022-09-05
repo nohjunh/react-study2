@@ -1,9 +1,9 @@
 import FoodList from "./FoodList";
-import Mockitems from "../mock.json";
 import { useState } from "react";
+import { getFoods } from "../api";
 
 function App() {
-  const [items, setItems] = useState(Mockitems);
+  const [items, setItems] = useState([]);
   const [order, setOrder] = useState("createdAt");
   const sortedItems = items.sort((a, b) => {
     if (order === "createdAt") {
@@ -24,11 +24,18 @@ function App() {
   const handleNewestClick = () => setOrder("createdAt");
   const handleCalorieClick = () => setOrder("calorie");
 
+  const handleLoadClick = async () => {
+    // 받아온 body에서 foods값만 destructuring해서 items State를 변경시킨다.
+    const { foods } = await getFoods();
+    setItems(foods);
+  };
+
   return (
     <div>
       <div>
         <button onClick={handleNewestClick}>최신순</button>
         <button onClick={handleCalorieClick}>칼로리순</button>
+        <button onClick={handleLoadClick}>불러오기</button>
       </div>
       <FoodList items={sortedItems} onDelete={handleDelete} />
     </div>
