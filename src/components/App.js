@@ -1,5 +1,5 @@
 import FoodList from "./FoodList";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getFoods } from "../api";
 
 function App() {
@@ -24,18 +24,23 @@ function App() {
   const handleNewestClick = () => setOrder("createdAt");
   const handleCalorieClick = () => setOrder("calorie");
 
-  const handleLoadClick = async () => {
+  const handleLoad = async () => {
     // 받아온 body에서 foods값만 destructuring해서 items State를 변경시킨다.
     const { foods } = await getFoods();
     setItems(foods);
   };
+
+  // handleLoad()를 한번만 실행시키기 위한
+  // 콜백 함수랑 빈 배열로 useEffect 함수를 실행하면 딱 한 번만 실행할 수 있다.
+  useEffect(() => {
+    handleLoad();
+  }, []);
 
   return (
     <div>
       <div>
         <button onClick={handleNewestClick}>최신순</button>
         <button onClick={handleCalorieClick}>칼로리순</button>
-        <button onClick={handleLoadClick}>불러오기</button>
       </div>
       <FoodList items={sortedItems} onDelete={handleDelete} />
     </div>
