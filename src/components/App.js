@@ -24,17 +24,17 @@ function App() {
   const handleNewestClick = () => setOrder("createdAt");
   const handleCalorieClick = () => setOrder("calorie");
 
-  const handleLoad = async () => {
+  const handleLoad = async (orderQuery) => {
     // 받아온 body에서 foods값만 destructuring해서 items State를 변경시킨다.
-    const { foods } = await getFoods();
+    const { foods } = await getFoods(orderQuery);
     setItems(foods);
   };
 
   // handleLoad()를 한번만 실행시키기 위한
   // 콜백 함수랑 빈 배열로 useEffect 함수를 실행하면 딱 한 번만 실행할 수 있다.
   useEffect(() => {
-    handleLoad();
-  }, []);
+    handleLoad(order);
+  }, [order]);
 
   return (
     <div>
