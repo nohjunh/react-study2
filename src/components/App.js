@@ -9,6 +9,7 @@ function App() {
   const [cursor, setCursor] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingError, setLoadingError] = useState(null);
+  const [search, setSearch] = useState("");
 
   const sortedItems = items.sort((a, b) => {
     if (order === "createdAt") {
@@ -45,6 +46,7 @@ function App() {
       paging: { nextCursor },
       foods,
     } = result;
+
     if (options.cursor !== undefined) {
       setItems((prevItems) => [...prevItems, ...foods]);
     } else {
@@ -54,14 +56,19 @@ function App() {
   };
 
   const handleLoadMore = async () => {
-    await handleLoad({ order, cursor });
+    await handleLoad({ order, cursor, search });
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearch(e.target["search"].value);
   };
 
   // handleLoad()를 한번만 실행시키기 위한
   // 콜백 함수랑 빈 배열로 useEffect 함수를 실행하면 딱 한 번만 실행할 수 있다.
   useEffect(() => {
-    handleLoad({ order });
-  }, [order]);
+    handleLoad({ order, search });
+  }, [order, search]);
 
   return (
     <div>
@@ -69,6 +76,10 @@ function App() {
         <button onClick={handleNewestClick}>최신순</button>
         <button onClick={handleCalorieClick}>칼로리순</button>
       </div>
+      <form onSubmit={handleSearchSubmit}>
+        <input name="search" />
+        <button type="submit">검색</button>
+      </form>
       <FoodList items={sortedItems} onDelete={handleDelete} />
       {cursor && (
         <button disabled={isLoading} onClick={handleLoadMore}>
