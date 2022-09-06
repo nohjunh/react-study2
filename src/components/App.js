@@ -5,6 +5,8 @@ import { getFoods } from "../api";
 function App() {
   const [items, setItems] = useState([]);
   const [order, setOrder] = useState("createdAt");
+  const [cursor, setCursor] = useState("");
+
   const sortedItems = items.sort((a, b) => {
     if (order === "createdAt") {
       // 문자열로 접근하므로 []대괄호 표기법으로 객체에 접근한다.
@@ -24,16 +26,28 @@ function App() {
   const handleNewestClick = () => setOrder("createdAt");
   const handleCalorieClick = () => setOrder("calorie");
 
-  const handleLoad = async (orderQuery) => {
-    // 받아온 body에서 foods값만 destructuring해서 items State를 변경시킨다.
-    const { foods } = await getFoods(orderQuery);
-    setItems(foods);
+  const handleLoad = async (options) => {
+    const {
+      // 리스폰스에서 paging.nextCursor의 값을 가져온다.
+      paging: { nextCursor },
+      foods,
+    } = await getFoods(options);
+    if (options.cursor !== undefined) {
+      setItems((prevItems) => [...prevItems, ...foods]);
+    } else {
+      setItems(foods);
+    }
+    setCursor(nextCursor);
+  };
+
+  const handleLoadMore = async () => {
+    await handleLoad({ order, cursor });
   };
 
   // handleLoad()를 한번만 실행시키기 위한
   // 콜백 함수랑 빈 배열로 useEffect 함수를 실행하면 딱 한 번만 실행할 수 있다.
   useEffect(() => {
-    handleLoad(order);
+    handleLoad({ order });
   }, [order]);
 
   return (
@@ -43,6 +57,7 @@ function App() {
         <button onClick={handleCalorieClick}>칼로리순</button>
       </div>
       <FoodList items={sortedItems} onDelete={handleDelete} />
+      {cursor && <button onClick={handleLoadMore}>더 보기</button>}
     </div>
   );
 }
