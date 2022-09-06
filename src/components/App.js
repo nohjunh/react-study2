@@ -5,7 +5,10 @@ import { getFoods } from "../api";
 function App() {
   const [items, setItems] = useState([]);
   const [order, setOrder] = useState("createdAt");
-  const [cursor, setCursor] = useState("");
+  // 커서 기반 페이지네이션을 진행할 예정 !
+  const [cursor, setCursor] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingError, setLoadingError] = useState(null);
 
   const sortedItems = items.sort((a, b) => {
     if (order === "createdAt") {
@@ -27,11 +30,21 @@ function App() {
   const handleCalorieClick = () => setOrder("calorie");
 
   const handleLoad = async (options) => {
+    let result;
+    try {
+      setIsLoading(true);
+      setLoadingError(null);
+      result = await getFoods(options);
+    } catch (e) {
+      setLoadingError(e);
+    } finally {
+      setIsLoading(false);
+    }
     const {
-      // 리스폰스에서 paging.nextCursor의 값을 가져온다.
+      // 리스폰스 결과 result에서 paging.nextCursor의 값을 가져온다.
       paging: { nextCursor },
       foods,
-    } = await getFoods(options);
+    } = result;
     if (options.cursor !== undefined) {
       setItems((prevItems) => [...prevItems, ...foods]);
     } else {
@@ -57,7 +70,12 @@ function App() {
         <button onClick={handleCalorieClick}>칼로리순</button>
       </div>
       <FoodList items={sortedItems} onDelete={handleDelete} />
-      {cursor && <button onClick={handleLoadMore}>더 보기</button>}
+      {cursor && (
+        <button disabled={isLoading} onClick={handleLoadMore}>
+          더 보기
+        </button>
+      )}
+      {loadingError?.message && <span>{loadingError.message}</span>}
     </div>
   );
 }
