@@ -72,6 +72,7 @@ function App() {
 
   return (
     <div>
+      <FoodForm />
       <div>
         <button onClick={handleNewestClick}>최신순</button>
         <button onClick={handleCalorieClick}>칼로리순</button>
