@@ -1,4 +1,5 @@
 import { useState } from "react";
+import FileInput from "./FileInput";
 
 function sanitize(type, value) {
   switch (type) {
@@ -14,14 +15,19 @@ function FoodForm() {
     title: "",
     calorie: 0,
     content: "",
+    imgFile: null,
   });
 
-  const handleChange = (e) => {
-    const { name, value, type } = e.target;
+  const handleChange = (name, value) => {
     setValues((prevValues) => ({
       ...prevValues,
-      [name]: sanitize(type, value),
+      [name]: value,
     }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type } = e.target;
+    handleChange(name, sanitize(type, value));
   };
 
   const handleSubmit = (e) => {
@@ -31,17 +37,26 @@ function FoodForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input name="title" value={values.title} onChange={handleChange}></input>
+      <FileInput
+        name="imgFile"
+        value={values.imgFile}
+        onChange={handleChange}
+      />
+      <input
+        name="title"
+        value={values.title}
+        onChange={handleInputChange}
+      ></input>
       <input
         type="number"
         name="calorie"
         value={values.calorie}
-        onChange={handleChange}
+        onChange={handleInputChange}
       ></input>
       <input
         name="content"
         value={values.content}
-        onChange={handleChange}
+        onChange={handleInputChange}
       ></input>
       <button type="submit">확인</button>
     </form>
