@@ -1,7 +1,7 @@
 import FoodList from "./FoodList";
 import { useEffect, useState } from "react";
 import { getFoods } from "../api";
-import FoodForm from './FoodForm';
+import FoodForm from "./FoodForm";
 
 function App() {
   const [items, setItems] = useState([]);
@@ -60,6 +60,12 @@ function App() {
     await handleLoad({ order, cursor, search });
   };
 
+  const handleSubmitSuccess = (newItem) => {
+    setItems((prevItems) => {
+      return [newItem, ...prevItems];
+    });
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setSearch(e.target["search"].value);
@@ -73,7 +79,7 @@ function App() {
 
   return (
     <div>
-      <FoodForm />
+      <FoodForm onSubmitSuccess={handleSubmitSuccess} />
       <div>
         <button onClick={handleNewestClick}>최신순</button>
         <button onClick={handleCalorieClick}>칼로리순</button>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FileInput from "./FileInput";
+import { createFood } from "../api";
 
 function sanitize(type, value) {
   switch (type) {
@@ -10,15 +11,22 @@ function sanitize(type, value) {
   }
 }
 
-function FoodForm() {
-  const [values, setValues] = useState({
-    title: "",
-    calorie: 0,
-    content: "",
-    imgFile: null,
-  });
+const INITIAL_VALUES = {
+  title: "",
+  calorie: 0,
+  content: "",
+  imgFile: null,
+};
+
+function FoodForm({ onSubmitSuccess }) {
+  const [values, setValues] = useState(INITIAL_VALUES);
+  const [isSumitting, setIsSubmitting] = useState(false);
+  const [submittingError, setSubmittingError] = useState(null);
 
   const handleChange = (name, value) => {
+    // 리턴값이 함수가 아니라 객체이면
+    // setValues의 콜백함수에서 리턴부를 ()로 넣어주면
+    // 리액트가 이 부분이 함수리턴이 아니라 객체리턴으로 이해한다.
     setValues((prevValues) => ({
       ...prevValues,
       [name]: value,
@@ -30,9 +38,28 @@ function FoodForm() {
     handleChange(name, sanitize(type, value));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(values);
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // 윈도우의 기본동작을 막는다.
+    const formData = new FormData();
+    // 키,값 쌍을 저장해준다.
+    formData.append("imgFile", values.imgFile);
+    formData.append("title", values.title);
+    formData.append("calorie", values.calorie);
+    formData.append("content", values.content);
+    let result;
+    try {
+      setIsSubmitting(true);
+      setSubmittingError(null);
+      result = await createFood(formData);
+    } catch (e) {
+      setSubmittingError(e);
+      return;
+    } finally {
+      setIsSubmitting(false);
+    }
+    const { food } = result;
+    setValues(INITIAL_VALUES);
+    onSubmitSuccess(food);
   };
 
   return (
@@ -58,7 +85,10 @@ function FoodForm() {
         value={values.content}
         onChange={handleInputChange}
       ></input>
-      <button type="submit">확인</button>
+      <button disabled={isSumitting} type="submit">
+        확인
+      </button>
+      {submittingError && <div>{submittingError.message}</div>}
     </form>
   );
 }
