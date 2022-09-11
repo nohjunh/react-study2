@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFood, updateFood, getFoods, deleteFood } from "../api";
 import FoodList from "./FoodList";
 import FoodForm from "./FoodForm";
+import LocaleContext from "../contexts/LocaleContext";
 
 function App() {
   // 커서 기반 페이지네이션을 진행할 예정 !
@@ -95,27 +96,31 @@ function App() {
   }, [order, search]);
 
   return (
-    <div>
-      <FoodForm onSubmit={createFood} onSubmitSuccess={handleCreateSuccess} />
-      <button onClick={handleNewestClick}>최신순</button>
-      <button onClick={handleCalorieClick}>칼로리순</button>
-      <form onSubmit={handleSearchSubmit}>
-        <input name="search" />
-        <button type="submit">검색</button>
-      </form>
-      <FoodList
-        items={sortedItems}
-        onDelete={handleDelete}
-        onUpdate={updateFood}
-        onUpdateSuccess={handleUpdateSuccess}
-      />
-      {cursor && (
-        <button disabled={isLoading} onClick={handleLoadMore}>
-          더 보기
-        </button>
-      )}
-      {loadingError?.message && <span>{loadingError.message}</span>}
-    </div>
+    // Context에 있는 Provider라는 컴포넌트로 Context를 적용
+    // 넘겨줄 값은 value Prop으로 내려줌.
+    <LocaleContext.Provider value="ko">
+      <div>
+        <FoodForm onSubmit={createFood} onSubmitSuccess={handleCreateSuccess} />
+        <button onClick={handleNewestClick}>최신순</button>
+        <button onClick={handleCalorieClick}>칼로리순</button>
+        <form onSubmit={handleSearchSubmit}>
+          <input name="search" />
+          <button type="submit">검색</button>
+        </form>
+        <FoodList
+          items={sortedItems}
+          onDelete={handleDelete}
+          onUpdate={updateFood}
+          onUpdateSuccess={handleUpdateSuccess}
+        />
+        {cursor && (
+          <button disabled={isLoading} onClick={handleLoadMore}>
+            더 보기
+          </button>
+        )}
+        {loadingError?.message && <span>{loadingError.message}</span>}
+      </div>
+    </LocaleContext.Provider>
   );
 }
 
