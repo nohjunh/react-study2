@@ -1,7 +1,7 @@
 import "./FoodList.css";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import FoodForm from "./FoodForm";
-import LocaleContext from "../contexts/LocaleContext";
+import useTranslate from "../hooks/useTranslate";
 
 function formatDate(value) {
   const date = new Date(value);
@@ -10,9 +10,7 @@ function formatDate(value) {
 
 function FoodListItem({ item, onDelete, onEdit }) {
   const { imgUrl, title, calorie, content, createdAt } = item;
-
-  // Context 값을 사용하려면 useContext 함수 사용
-  const locale = useContext(LocaleContext);
+  const t = useTranslate(); // 함수를 가져온 것이다.
 
   const handleEditClick = () => {
     onEdit(item.id);
@@ -28,10 +26,9 @@ function FoodListItem({ item, onDelete, onEdit }) {
       <div>{title}</div>
       <div>{calorie}</div>
       <div>{content}</div>
-      <p>현재 언어: {locale}</p>
       <div>{formatDate(createdAt)}</div>
-      <button onClick={handleEditClick}>수정</button>
-      <button onClick={handleDeleteClick}>삭제</button>
+      <button onClick={handleEditClick}>{t("edit button")}</button>
+      <button onClick={handleDeleteClick}>{t("delete button")}</button>
     </div>
   );
 }
